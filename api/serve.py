@@ -26,6 +26,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -34,17 +35,15 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Add fraud_det/src to path so joblib can find FraudFeatureEngineer
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'Fraud_detection' / 'fraud_det' / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from bedrock import call_claude
 from prompts import build_investigation_prompt, parse_brief
 
 # Config —————————————————————————————————————————————————————
 # Path to the trained fraud detection model from the original project
-MODEL_PATH = Path(__file__).parent.parent.parent / \
-             'Fraud_detection' / 'fraud_det' / 'models' / 'fraud_model.pkl'
-META_PATH  = Path(__file__).parent.parent.parent / \
-             'Fraud_detection' / 'fraud_det' / 'models' / 'model_meta.json'
+MODEL_PATH = Path(__file__).parent.parent / 'models' / 'fraud_model.pkl'
+META_PATH  = Path(__file__).parent.parent / 'models' / 'model_meta.json'
 
 THRESHOLD  = 0.30
 
@@ -72,6 +71,14 @@ app = FastAPI(
         'investigation briefs for insurance fraud analysts.'
     ),
     version = '1.0.0',
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins     = ["*"],
+    allow_credentials = True,
+    allow_methods     = ["*"],
+    allow_headers     = ["*"],
 )
 
 # Schema —————
