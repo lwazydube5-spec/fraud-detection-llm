@@ -114,26 +114,7 @@ The augmented prompt combines 13 human-readable claim fields + model score + SHA
 
 ---
 
-## Running locally
 
-```bash
-git clone https://github.com/lwazydube5-spec/fraud-detection-llm.git
-cd fraud-detection-llm
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn api.serve:app --host 0.0.0.0 --port 8000 --reload
-```
-
-AWS credentials must be configured for Bedrock calls:
-
-```bash
-aws configure
-```
-
-Then open `frontend/index.html` in your browser.
-
----
 
 ## Tech stack
 
