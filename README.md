@@ -102,17 +102,7 @@ fraud_det_llm/
 
 ---
 
-## How the three files connect
 
-| File | Role | Responsibility |
-|------|------|----------------|
-| `bedrock.py` | Technical layer | HOW to talk to Claude — boto3 Bedrock API call |
-| `prompts.py` | Intelligence layer | WHAT to say to Claude — augmented prompt + parser |
-| `api/serve.py` | Orchestration layer | WHEN and WHY — runs all three steps, returns response |
-
-The augmented prompt combines 13 human-readable claim fields + model score + SHAP reasons into a structured 500 token prompt. Claude never sees the raw threshold or the 93 engineered features — Python handles the numbers, Claude handles the language.
-
----
 
 
 
