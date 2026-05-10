@@ -29,6 +29,9 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional
+from langchain_core.messages import HumanMessage
+from langchain_agent import build_agent
+from langchain_core.messages import AIMessage
 
 # Path setup —————————————————————————————————————————————
 # Add parent directories to path so we can import bedrock and prompts
@@ -61,6 +64,10 @@ with open(META_PATH) as f:
     meta = json.load(f)
 
 print(f'Model loaded — ROC-AUC: {meta.get("cv_roc_auc", "unknown")}')
+
+print('Building LangChain agent...')
+agent = build_agent(pipeline, meta)
+print('Agent ready.')
 
 # App ————
 app = FastAPI(
@@ -194,7 +201,7 @@ def get_shap_reasons(claim_data: dict) -> list:
 
     return impacts[:5]
 
-# Endpoints —————————————————————————————————————————
+# Endpoints –––––––––––––––––––––
 
 @app.post('/predict')
 def predict(claim: ClaimInput):
@@ -241,6 +248,64 @@ def investigate(claim: ClaimInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class ChatRequest(BaseModel):
+    message : str
+    claim   : Optional[ClaimInput] = None
+    history : list = []
+
+
+@app.post('/chat')
+def chat(request: ChatRequest):
+    """
+    Conversational fraud investigation agent.
+    The agent decides which tools to call based on the message.
+    Optionally accepts a claim for context.
+    """
+    try:
+        t0 = time.time()
+
+        # build the message — include claim context if provided
+        if request.claim:
+            claim_json = json.dumps(request.claim.model_dump())
+            full_message = (
+                f"{request.message}\n\n"
+                f"Claim data: {claim_json}"
+            )
+        else:
+            full_message = request.message
+
+        # invoke the agent
+        # build message history
+        messages = []
+        for turn in request.history:
+            if turn.get('role') == 'user':
+                messages.append(HumanMessage(content=turn['content']))
+            elif turn.get('role') == 'assistant':
+                messages.append(AIMessage(content=turn['content']))
+
+        # add current message
+        messages.append(HumanMessage(content=full_message))
+
+        # invoke the agent
+        response = agent.invoke({'messages': messages})
+
+        # get the last message — the agent's final response
+        answer = response['messages'][-1].content
+
+        # build updated history to return to client
+        updated_history = request.history + [
+            {'role': 'user',      'content': full_message},
+            {'role': 'assistant', 'content': answer},
+        ]
+
+        return JSONResponse(content={
+            'response' : answer,
+            'history'  : updated_history,
+            'total_ms' : round((time.time() - t0) * 1000, 2),
+        })
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get('/health')
 def health():
