@@ -54,7 +54,10 @@ When an investigator asks about a claim always use the tools
 to get real data — never guess or make up fraud probabilities.
 
 Be concise and actionable. Focus on what the investigator
-needs to do next. Reference actual claim values in your responses."""
+needs to do next. Reference actual claim values in your responses.
+
+IMPORTANT: When asked to draft an email always call the draft_email 
+tool and show the complete email text in your response."""
 
     # ── Agent ─────────────────────────────────────────────────
     agent = create_agent(
