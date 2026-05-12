@@ -154,9 +154,14 @@ def get_risk_tier(prob: float) -> str:
 
 def get_confidence(prob: float) -> str:
     distance = abs(prob - THRESHOLD)
-    if distance > 0.35: return 'HIGH'
-    if distance > 0.15: return 'MEDIUM'
-    return 'LOW'
+    if prob < 0.30:
+        if distance > 0.20: return 'HIGH'
+        if distance > 0.10: return 'MEDIUM'
+        return 'LOW'
+    else:
+        if distance > 0.35: return 'HIGH'
+        if distance > 0.10: return 'MEDIUM'
+        return 'LOW'
 
 def score_claim(claim_data: dict) -> dict:
     """Score a single claim using the Random Forest model."""

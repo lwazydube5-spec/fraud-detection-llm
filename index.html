@@ -375,7 +375,7 @@ function renderResult(data, claim) {
   const tier = data.risk_tier;
   document.getElementById('r-tier').innerHTML = `<span class="risk-badge risk-${tier}">${tier}</span>`;
   document.getElementById('r-conf').innerHTML = `<span class="conf-badge">${data.confidence}</span>`;
-  document.getElementById('result-meta').textContent = `${(data.total_ms/1000).toFixed(1)}s · Random Forest + SHAP + Claude Haiku`;
+
   const maxI = Math.max(...data.top_reasons.map(r => r.impact));
   document.getElementById('r-shap').innerHTML = data.top_reasons.map(r => {
     const pct = Math.min((r.impact/maxI)*100, 100).toFixed(1);
