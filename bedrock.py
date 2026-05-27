@@ -30,6 +30,8 @@ def call_claude(prompt: str, max_tokens: int = 1000) -> str:
 
     response = bedrock.invoke_model(
         modelId = MODEL_ID,
+        guardrailIdentifier  = 'r13vvx7vq3k4',
+        guardrailVersion  = '1',
         body    = json.dumps({
             'anthropic_version': 'bedrock-2023-05-31',
             'max_tokens'        : max_tokens,

@@ -35,6 +35,10 @@ def build_agent(pipeline, meta):
         model_id     = 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
         region_name  = 'us-east-1',
         model_kwargs = {'max_tokens': 2000},
+        guardrails   = {
+            'guardrailIdentifier': 'r13vvx7vq3k4',
+            'guardrailVersion'   : '1',
+        }
     )
 
     # Tools 
